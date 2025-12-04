@@ -29,14 +29,12 @@ import com.rfidresearchgroup.common.util.FragmentUtil;
 import com.rfidresearchgroup.common.util.PermissionUtil;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 /*
- * 登陆界面，，用于登陆用户系统，初始化环境，对于用户的验证，都放在这里实现
+ * 登陆界面，用于登陆用户系统，初始化环境，对于用户的验证，都放在这里实现
+ * 已适配 Android 16 权限变更
  */
-public class LoginActivity
-        extends BaseActivity {
+public class LoginActivity extends BaseActivity {
 
     private PermissionUtil permissionUtil;
 
@@ -47,33 +45,33 @@ public class LoginActivity
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        // 多语言适配!
+        // 多语言适配
         App app = AppUtil.getInstance().getApp();
         app.setCallback(new App.ApplicationCallback() {
             @Override
             public Context onAttachBaseContext(Context context) {
                 String language = Commons.getLanguage();
                 if (language.equals("auto")) {
-                    //如果value = auto，则设置为跟随系统!
+                    // 如果value = auto，则设置为跟随系统
                     return context;
                 } else {
-                    //否则国际化!
+                    // 否则国际化
                     return LanguageUtil.setAppLanguage(context, language);
                 }
             }
         });
 
-        //权限请求!
+        // 权限请求
         permissionUtil = new PermissionUtil(this);
-        //开始检查需要的泉权限，以做后期的初始化
+        // 开始检查需要的权限，以做后期的初始化
         permissionUtil.setCallback(new PermissionCallback() {
             @Override
             public void onPermissionLose(PermissionUtil util) {
-                //权限丢失时的回调，我们需要做出准备，开始进行权限的请求!
-                //显示轮播界面!
+                // 权限丢失时的回调，我们需要做出准备，开始进行权限的请求
+                // 显示轮播界面
                 Fragment fragment = new LoginFragment();
                 Bundle data = new Bundle();
-                //存入丢失的权限列表!
+                // 存入丢失的权限列表
                 data.putStringArray("losePer", permissionUtil.getPermissionLose());
                 fragment.setArguments(data);
                 getSupportFragmentManager()
@@ -96,39 +94,52 @@ public class LoginActivity
         });
 
         ArrayList<String> permissionArray = new ArrayList<>();
-        Collections.addAll(permissionArray,
-                // 以下是一定要添加的权限
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-        );
-
-        // android 12或者以上，要单独申请蓝牙权限
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            permissionArray.add( Manifest.permission.BLUETOOTH_SCAN);
-            permissionArray.add( Manifest.permission.BLUETOOTH_CONNECT);
-            permissionArray.add( Manifest.permission.BLUETOOTH_ADVERTISE);
+        
+        // 存储权限适配 - Android 13 (API 33) 及以上使用分区存储
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Android 13+ 使用媒体权限替代传统存储权限
+            // 根据应用实际需求选择性添加
+            permissionArray.add(Manifest.permission.READ_MEDIA_IMAGES);
+            permissionArray.add(Manifest.permission.READ_MEDIA_VIDEO);
+            permissionArray.add(Manifest.permission.READ_MEDIA_AUDIO);
+        } else {
+            // Android 12 及以下使用传统存储权限
+            permissionArray.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            permissionArray.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         }
 
-        permissionUtil.setPermissions(permissionArray.toArray(new String[]{}));
+        // 蓝牙权限适配 - Android 12 (API 31) 及以上
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permissionArray.add(Manifest.permission.BLUETOOTH_SCAN);
+            permissionArray.add(Manifest.permission.BLUETOOTH_CONNECT);
+            permissionArray.add(Manifest.permission.BLUETOOTH_ADVERTISE);
+        }
+
+        permissionUtil.setPermissions(permissionArray.toArray(new String[0]));
         permissionUtil.checks();
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, 
+                                          @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        
         boolean result = true;
         for (int i : grantResults) {
             if (i != PackageManager.PERMISSION_GRANTED) {
                 result = false;
+                break;
             }
-            //在这里再次检查权限，如果所有的权限都通过的话则可以直接进入!
-            permissionUtil.checks();
         }
-        //如果所有的权限都有才能让他初始化
+        
+        // 在这里再次检查权限，如果所有的权限都通过的话则可以直接进入
+        permissionUtil.checks();
+        
+        // 如果所有的权限都有才能让他初始化
         if (!result) {
             Toast.makeText(this, R.string.tips_permission_request_failed, Toast.LENGTH_SHORT).show();
-            //执行finish，结束当前act，直接退出初始化!!!
+            // 执行finish，结束当前act，直接退出初始化
             finish();
         }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
