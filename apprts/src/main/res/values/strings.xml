@@ -330,5 +330,7 @@
     <string name="select">select</string>
     <string name="title_pm3_home">Proxmark3 External Work Directory</string>
     <string name="tips_pm3_res_err">The version for proxmark3 resource read failed.</string>
-
+    <string name="usb_permission_denied">USB权限被拒绝</string>
+    <string name="usb_device_not_found">未找到USB设备</string>
+    <string name="usb_device_connected">USB设备已连接</string>
 </resources>
