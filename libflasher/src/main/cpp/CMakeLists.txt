@@ -5,7 +5,8 @@ cmake_minimum_required(VERSION 3.4.1)
 add_definitions("-D__ANDROID_NDK__")
 
 #添加预编译宏定义参数，此次的作用是开启配置文件的引入!
-add_definitions(-DANDROID -D "getlocaledecpoint()='.'")
+#add_definitions(-DANDROID -D "getlocaledecpoint()='.'")
+add_definitions(-DANDROID -Dgetlocaledecpoint=\".\")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -O3 -fvisibility=hidden -w")
 
