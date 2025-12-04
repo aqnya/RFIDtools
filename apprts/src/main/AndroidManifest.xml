@@ -8,14 +8,29 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"
         android:maxSdkVersion="30" />
 
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <!-- Bluetooth permissions for Android 12+ -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="s" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
+    <!-- Location permissions -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    
+    <!-- Storage permissions for Android 12 and below -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    
+    <!-- Media permissions for Android 13+ (API 33+) -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    
+    <!-- Other permissions -->
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -30,7 +45,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="q">
 
-        <activity android:name="com.rfidresearchgroup.activities.tools.LoginActivity" android:exported="true">
+        <activity android:name="com.rfidresearchgroup.activities.tools.LoginActivity" 
+            android:exported="true"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -45,12 +62,12 @@
         <activity android:name="com.rfidresearchgroup.activities.tools.ChameleonSoltAliasesActivity" />
         <activity android:name="com.rfidresearchgroup.activities.tools.AboutActicity" />
 
-
         <activity
             android:name="com.rfidresearchgroup.activities.connect.Proxmark3Rdv4RRGConnectActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|screenLayout" />
 
-        <activity android:name="com.rfidresearchgroup.activities.main.GeneralNfcDeviceMain" android:exported="true">
+        <activity android:name="com.rfidresearchgroup.activities.main.GeneralNfcDeviceMain" 
+            android:exported="true">
             <!-- NFC Tech Filter -->
             <intent-filter>
                 <action android:name="android.nfc.action.TECH_DISCOVERED" />
