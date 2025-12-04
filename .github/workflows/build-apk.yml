@@ -33,8 +33,9 @@ jobs:
           ./gradlew clean assembleDebug
 
  
-    - name: Upload project
+    - name: Upload APKs
       uses: actions/upload-artifact@v4
       with:
         name: apprelease-${{ env.BUILD_TIME }}
-        path: ${{ github.workspace }}/app/build/outputs/apk/debug/*.apk
+        path: |
+          ${{ github.workspace }}/**/*.apk
